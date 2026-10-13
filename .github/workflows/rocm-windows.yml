@@ -51,12 +51,19 @@ jobs:
           path: backend/dist/voicebox-server-rocm/
           retention-days: 7
 
+      - name: List packaged assets
+        shell: pwsh
+        run: |
+          Get-ChildItem -Force release-assets | Format-Table Name, Length
+          Write-Host "Archive exists:"
+          Test-Path release-assets/rocm-libs-rocm7.2-v1.tar.gz
+          Write-Host "Checksum exists:"
+          Test-Path release-assets/rocm-libs-rocm7.2-v1.tar.gz.sha256
+
       - name: Upload ROCm libraries
         uses: actions/upload-artifact@v4
         with:
           name: voicebox-rocm-libraries
-          path: |
-            release-assets/rocm-libs-rocm7.2-v1.tar.gz
-            release-assets/rocm-libs-rocm7.2-v1.tar.gz.sha256
-            release-assets/rocm-libs.json
+          path: release-assets/
+          if-no-files-found: error
           retention-days: 7
