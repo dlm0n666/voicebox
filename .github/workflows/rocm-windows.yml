@@ -27,6 +27,7 @@ jobs:
           pip install -r backend/requirements.txt
           pip install --no-deps chatterbox-tts
           pip install --no-deps hume-tada
+          pip install --no-deps omnivoice
 
       - name: Build ROCm server binary
         shell: bash
