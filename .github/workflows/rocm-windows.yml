@@ -1,0 +1,60 @@
+name: Build VoiceBox ROCm for Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-rocm-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r backend/requirements.txt
+          pip install --no-deps chatterbox-tts
+          pip install --no-deps hume-tada
+
+      - name: Build ROCm server binary
+        shell: bash
+        working-directory: backend
+        run: python build_binary.py --rocm
+
+      - name: Package ROCm server and libraries
+        shell: bash
+        run: |
+          python scripts/package_rocm.py \
+            backend/dist/voicebox-server-rocm/ \
+            --output release-assets/ \
+            --rocm-libs-version rocm7.2-v1 \
+            --torch-compat ">=2.9.0,<2.10.0"
+
+      - name: Upload ROCm server
+        uses: actions/upload-artifact@v4
+        with:
+          name: voicebox-server-rocm-windows
+          path: backend/dist/voicebox-server-rocm/
+          retention-days: 7
+
+      - name: Upload ROCm libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: voicebox-rocm-libraries
+          path: |
+            release-assets/rocm-libs-rocm7.2-v1.tar.gz
+            release-assets/rocm-libs-rocm7.2-v1.tar.gz.sha256
+            release-assets/rocm-libs.json
+          retention-days: 7
