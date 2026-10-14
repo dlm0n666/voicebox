@@ -47,9 +47,12 @@ jobs:
       - name: Upload ROCm server
         uses: actions/upload-artifact@v4
         with:
-          name: voicebox-server-rocm-windows
-          path: backend/dist/voicebox-server-rocm/
-          retention-days: 7
+         name: voicebox-server-rocm-windows
+         path: |
+          release-assets/voicebox-server-rocm-windows-x86_64.tar.gz
+          release-assets/voicebox-server-rocm-windows-x86_64.tar.gz.sha256
+         if-no-files-found: error
+         retention-days: 7
 
       - name: List packaged assets
         shell: pwsh
